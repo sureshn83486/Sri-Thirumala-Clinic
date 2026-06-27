@@ -27,10 +27,9 @@ import {
   HelpCircle,
   Thermometer,
   Shield,
-  BriefcaseMedical,
-  Sparkles
+  BriefcaseMedical
 } from 'lucide-react';
-import { getStoredBanner, setStoredBanner, deleteStoredBanner } from './utils/db';
+
 
 export default function App() {
   const [language, setLanguage] = useState<Language>('te'); // Default to Telugu as requested & optimal for rural Darsi, but toggleable easily
@@ -45,60 +44,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const [customFacBanner, setCustomFacBanner] = useState<string | null>(null);
-
-  const [facBannerSrc, setFacBannerSrc] = useState<string>(() => {
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    return `${cleanBase}banner_facilities.png`;
-  });
-
-  React.useEffect(() => {
-    async function loadBanner() {
-      const saved = await getStoredBanner('dr_nayak_facilities_banner');
-      if (saved) {
-        setCustomFacBanner(saved);
-        setFacBannerSrc(saved);
-      }
-    }
-    loadBanner();
-  }, []);
-
-  const handleFacBannerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          try {
-            await setStoredBanner('dr_nayak_facilities_banner', result);
-            setCustomFacBanner(result);
-            setFacBannerSrc(result);
-          } catch (err) {
-            console.error('Failed to save facilities banner', err);
-            alert(language === 'en'
-              ? 'Could not save the image. Please try another image.'
-              : 'చిత్రం సేవ్ చేయలేకపోయాము. దయచేసి మరొక చిత్రాన్ని ఎంచుకోండి.');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleResetFacBanner = async () => {
-    await deleteStoredBanner('dr_nayak_facilities_banner');
-    setCustomFacBanner(null);
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    setFacBannerSrc(`${cleanBase}banner_facilities.png`);
-  };
-
-  const handleFacBannerError = () => {
-    setFacBannerSrc('');
-  };
-
+  const [facBannerSrc, setFacBannerSrc] = useState<string>('/banner_facilities.png');
 
   const t = TRANSLATIONS[language];
 
@@ -405,7 +351,7 @@ export default function App() {
                       },
                       {
                         q_en: "How does the Night-Hospital emergency work?",
-                        q_te: "రాత్రివేళల్లో వైద్య సేవల సదుపాయం ఎలా ఉంటుంది?",
+                        q_te: "రాత్రిвеళల్లో వైద్య సేవల సదుపాయం ఎలా ఉంటుంది?",
                         a_en: "For any emergency case (stroke, child suffering, breathing struggle, stings, accidents) at night, please call our hotline +91 9618888743 directly. Dr. N.S. Nayak, Civil Assistant Surgeon, is resident and handles nights.",
                         a_te: "గుండెనొప్పి, శ్వాసకోస సమస్యలు, పాము లేదా తేలుకాటు మరియు ప్రమాదాల వంటి ఏ అత్యవసర పరిస్థితుల కొరకు అయినా మా హెల్ప్‌లైన్ నెంబరు 9618888743 కి కాల్ చేయవచ్చు."
                       },
@@ -422,8 +368,9 @@ export default function App() {
                           <span>{language === 'en' ? faq.q_en : faq.q_te}</span>
                         </h4>
                         <div className="pl-6 border-l-2 border-slate-200 mt-2 space-y-1">
-                          <p className="text-xs text-slate-500 font-semibold leading-relaxed">{faq.a_en}</p>
-                          <p className="text-xs text-slate-700 font-bold leading-relaxed font-sans">{faq.a_te}</p>
+                          <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                            {language === 'en' ? faq.a_en : faq.a_te}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -455,7 +402,10 @@ export default function App() {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.2 }}
             >
-              <ServicesGrid language={language} onSelectService={handleSelectService} />
+              <ServicesGrid 
+                language={language} 
+                onSelectService={handleSelectService} 
+              />
             </motion.div>
           )}
 
@@ -468,119 +418,57 @@ export default function App() {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.2 }}
             >
-              {/* ON-SITE MEDICAL FACILITIES BAR */}
-              <section className="py-0 bg-white border-b border-slate-100 bg-gradient-to-b from-white to-slate-50">
-                
-                {/* FACILITIES SHOWCASE HERO BANNER (BANNER 3/3) - FULL WIDTH */}
-                <div className="relative w-full overflow-hidden shadow-xl border-b border-slate-200 bg-[#06182c] text-white">
-                  
-                  {/* Main Banner Image Container */}
-                  {facBannerSrc ? (
-                    <div className="w-full h-auto overflow-hidden">
-                      <img 
-                        src={facBannerSrc} 
-                        alt="Sri Thirumala Clinic Facilities Banner" 
-                        onError={handleFacBannerError}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-auto select-none block"
-                      />
-                    </div>
-                  ) : (
-                    /* Reconstructed HTML/CSS Fallback for Facilities Showcase Banner (Banner 3/3) */
-                    <div className="relative w-full py-10 md:py-14 flex flex-col justify-between overflow-hidden">
-                      {/* Background styling */}
-                      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]" />
-                      <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-gradient-to-l from-sky-500/10 to-transparent pointer-events-none" />
-                      
-                      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 w-full">
-                        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-                          <div className="space-y-4 max-w-2xl">
-                            {/* Glowing badge */}
-                            <div className="flex items-center gap-2">
-                              <span className="flex h-2.5 w-2.5 relative">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500"></span>
-                              </span>
-                              <span className="text-[10px] md:text-xs font-black tracking-widest text-sky-400 uppercase bg-sky-950/40 px-3 py-1 rounded-full border border-sky-500/20 font-mono">
-                                {language === 'en' ? 'State-Of-The-Art On-Site Diagnostics' : 'అధునాతన రోగ నిర్ధారణ & వైద్య సదుపాయాలు'}
-                              </span>
-                            </div>
-
-                            {/* Banner Title */}
-                            <div className="space-y-1">
-                              <h1 className="text-2xl md:text-4xl font-serif font-black tracking-tight text-white">
-                                ON-SITE DIAGNOSTIC & <span className="text-sky-400 font-sans italic">LIFE SUPPORT</span>
-                              </h1>
-                              <p className="text-slate-300 text-xs md:text-sm font-semibold tracking-wide font-sans">
-                                {language === 'en' 
-                                  ? 'Equipped for Cardiac, Respiratory, Pharmacy & Triage emergencies' 
-                                  : 'గుండె, శ్వాసకోస మరియు అత్యవసర ప్రాణ రక్షణ సదుపాయాలు నిరంతరం సిద్ధంగా కలవు'}
-                              </p>
-                            </div>
-
-                            {/* Facilities list preview */}
-                            <div className="pt-2 flex flex-wrap gap-2 text-[10px] font-bold text-slate-300">
-                              <span className="bg-slate-900/60 border border-slate-800 px-2.5 py-1 rounded-lg">
-                                🌬️ Oxygen Cylinder Support
-                              </span>
-                              <span className="bg-slate-900/60 border border-slate-800 px-2.5 py-1 rounded-lg">
-                                📈 12-Lead ECG Screening
-                              </span>
-                              <span className="bg-slate-900/60 border border-slate-800 px-2.5 py-1 rounded-lg">
-                                🧪 Clinical Pathology Lab
-                              </span>
-                              <span className="bg-slate-900/60 border border-slate-800 px-2.5 py-1 rounded-lg">
-                                💊 24/7 Open Medicine shop
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Right diagnostics info box */}
-                          <div className="bg-slate-900/70 border border-white/10 p-5 rounded-2xl max-w-xs w-full backdrop-blur-sm shadow-xl flex items-center gap-3.5">
-                            <Activity size={32} className="text-sky-400 animate-pulse shrink-0" />
-                            <div>
-                              <h4 className="text-xs font-black text-slate-300 uppercase tracking-widest">{language === 'en' ? 'Triage Facility' : 'వైద్య परीक्षा'}</h4>
-                              <p className="text-white text-sm font-extrabold mt-0.5">Instant Screening</p>
-                              <p className="text-[10px] text-slate-400 mt-0.5">{language === 'en' ? 'Pathology results in 15 mins' : '15 నిమిషాల్లో ఈ.సి.జి రిపోర్ట్'}</p>
-                            </div>
-                          </div>
+              {/* IMMERSIVE TOP HERO BANNER OR CUSTOM UPLOAD */}
+              <div className="relative w-full overflow-hidden shadow-xl border-b border-slate-200 bg-[#071324] text-white">
+                {facBannerSrc ? (
+                  <div className="w-full h-auto overflow-hidden">
+                    <img 
+                      src={facBannerSrc} 
+                      alt="Sri Thirumala Clinic Facilities Banner" 
+                      onError={() => {
+                        if (facBannerSrc === '/banner_facilities.png') {
+                          setFacBannerSrc('');
+                        }
+                      }}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-auto select-none block"
+                    />
+                  </div>
+                ) : (
+                  /* Reconstructed HTML/CSS Fallback for Facilities Showcase Banner */
+                  <div className="relative w-full py-10 md:py-14 flex flex-col justify-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <div className="absolute right-0 bottom-0 top-0 w-1/2 bg-gradient-to-l from-indigo-500/10 via-indigo-500/5 to-transparent pointer-events-none" />
+                    
+                    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 w-full relative z-20">
+                      <div className="max-w-3xl space-y-3">
+                        {/* Glowing alert badge */}
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-2 w-2 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                          </span>
+                          <span className="text-[10px] md:text-xs font-black tracking-widest text-indigo-300 uppercase bg-indigo-950/40 px-3 py-1 rounded-full border border-indigo-500/20 font-mono">
+                            {language === 'en' ? 'Clinical Infrastructure & Medical Gear' : 'క్లినికల్ మౌలిక సదుపాయాలు మరియు వైద్య పరికరాలు'}
+                          </span>
                         </div>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Banner Action Controls Bar */}
-                  <div className="relative z-10 bg-slate-950/70 py-2.5 border-t border-white/10">
-                    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
-                      <div className="flex items-center gap-2 font-semibold">
-                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span>{language === 'en' ? 'Facilities & Diagnostics Banner Slot' : 'క్లినిక్ సదుపాయాలు బ్యానర్ సదుపాయం'}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <label className="bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-black px-3.5 py-1.5 rounded-xl cursor-pointer transition-all duration-150 shadow-sm flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                          <Sparkles size={11} className="text-amber-300 animate-pulse" />
-                          <span>{language === 'en' ? 'Upload Banner Image' : 'బ్యానర్ అప్‌లోడ్'}</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={handleFacBannerUpload} 
-                            className="hidden" 
-                          />
-                        </label>
-
-                        {customFacBanner && (
-                          <button
-                            onClick={handleResetFacBanner}
-                            className="bg-slate-800 hover:bg-red-950/60 hover:text-red-400 border border-slate-700 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-150 cursor-pointer"
-                          >
-                            {language === 'en' ? 'Reset' : 'రీసెట్'}
-                          </button>
-                        )}
+                        <h1 className="text-2xl md:text-4xl font-serif font-black tracking-tight text-white uppercase">
+                          {language === 'en' ? 'Modern Medical Diagnostics' : 'అధునాతన రోగ నిర్ధారణ & చికిత్స సౌకర్యాలు'}
+                        </h1>
+                        <p className="text-slate-300 text-xs md:text-sm font-semibold max-w-xl">
+                          {language === 'en' 
+                            ? 'Equipped with direct clinical high-flow oxygen lines, instant 12-lead ECG setups, and rapid test panels for seamless patient triaging.' 
+                            : 'నేరుగా క్లినికల్ హై-ఫ్లో ఆక్సిజన్ లైన్లు, తక్షణ 12-లీడ్ ECG మరియు త్వరిత వ్యాధి నిర్ధారణ ల్యాబ్ సదుపాయాలు కలవు.'}
+                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+
+              <section className="relative bg-slate-50 min-h-screen">
+
 
                 {/* Remaining Content Container */}
                 <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 space-y-12">

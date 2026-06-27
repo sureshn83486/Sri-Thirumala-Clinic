@@ -4,10 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { Language, MedicalService } from '../types';
+import { Language } from '../types';
 import { MEDICAL_SERVICES, TRANSLATIONS } from '../data/translations';
 import * as Icons from 'lucide-react';
-import { getStoredBanner, setStoredBanner, deleteStoredBanner } from '../utils/db';
 
 interface ServicesGridProps {
   language: Language;
@@ -18,60 +17,10 @@ export function ServicesGrid({ language, onSelectService }: ServicesGridProps) {
   const t = TRANSLATIONS[language];
   const [activeCategory, setActiveCategory] = useState<'all' | 'emergency' | 'general' | 'chronic' | 'seasonal'>('all');
 
-  const [customBanner, setCustomBanner] = useState<string | null>(null);
-
-  const [bannerSrc, setBannerSrc] = useState<string>(() => {
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    return `${cleanBase}banner_treatments.png`;
-  });
-
-  React.useEffect(() => {
-    async function loadBanner() {
-      const saved = await getStoredBanner('dr_nayak_treatments_banner');
-      if (saved) {
-        setCustomBanner(saved);
-        setBannerSrc(saved);
-      }
-    }
-    loadBanner();
-  }, []);
-
-  const handleBannerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          try {
-            await setStoredBanner('dr_nayak_treatments_banner', result);
-            setCustomBanner(result);
-            setBannerSrc(result);
-          } catch (err) {
-            console.error('Failed to save treatments banner', err);
-            alert(language === 'en'
-              ? 'Could not save the image. Please try another image.'
-              : 'చిత్రం సేవ్ చేయలేకపోయాము. దయచేసి మరొక చిత్రాన్ని ఎంచుకోండి.');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleResetBanner = async () => {
-    await deleteStoredBanner('dr_nayak_treatments_banner');
-    setCustomBanner(null);
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    setBannerSrc(`${cleanBase}banner_treatments.png`);
-  };
-
+  const [bannerSrc, setBannerSrc] = useState<string>('/banner_treatments.png');
   const handleBannerError = () => {
     setBannerSrc('');
   };
-
 
   const categories = [
     { id: 'all', en: 'All Treatments', te: 'అన్ని సేవలు' },
@@ -194,38 +143,6 @@ export function ServicesGrid({ language, onSelectService }: ServicesGridProps) {
             </div>
           </div>
         )}
-
-        {/* Banner Action Controls Bar */}
-        <div className="relative z-10 bg-slate-950/70 py-2.5 border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
-            <div className="flex items-center gap-2 font-semibold">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>{language === 'en' ? 'Treatments & Services Banner Slot' : 'వైద్య చికిత్సలు & సర్వీసులు బ్యానర్ సదుపాయం'}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <label className="bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-black px-3.5 py-1.5 rounded-xl cursor-pointer transition-all duration-150 shadow-sm flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                <Icons.Sparkles size={11} className="text-amber-300 animate-pulse" />
-                <span>{language === 'en' ? 'Upload Banner Image' : 'బ్యానర్ అప్‌లోడ్'}</span>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleBannerUpload} 
-                  className="hidden" 
-                />
-              </label>
-
-              {customBanner && (
-                <button
-                  onClick={handleResetBanner}
-                  className="bg-slate-800 hover:bg-red-950/60 hover:text-red-400 border border-slate-700 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-150 cursor-pointer"
-                >
-                  {language === 'en' ? 'Reset' : 'రీసెట్'}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Remaining Content Container */}

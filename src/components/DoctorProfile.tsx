@@ -7,7 +7,6 @@ import React from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { Award, BookOpen, GraduationCap, Building, ShieldCheck, CheckCircle, Stethoscope, Sparkles } from 'lucide-react';
-import { getStoredBanner, setStoredBanner, deleteStoredBanner } from '../utils/db';
 
 interface DoctorProfileProps {
   language: Language;
@@ -15,99 +14,12 @@ interface DoctorProfileProps {
 
 export function DoctorProfile({ language }: DoctorProfileProps) {
   const t = TRANSLATIONS[language];
-  const [photoUrl, setPhotoUrl] = React.useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = React.useState<string | null>('/doctor.png');
   const [candidateIndex, setCandidateIndex] = React.useState(0);
-
-  const [customBanner, setCustomBanner] = React.useState<string | null>(null);
-
-  const [bannerSrc, setBannerSrc] = React.useState<string>(() => {
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    return `${cleanBase}banner_doctor.png`;
-  });
-
-  React.useEffect(() => {
-    async function loadBanner() {
-      const saved = await getStoredBanner('dr_nayak_doctor_banner');
-      if (saved) {
-        setCustomBanner(saved);
-        setBannerSrc(saved);
-      }
-    }
-    loadBanner();
-  }, []);
-
-  const handleBannerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          try {
-            await setStoredBanner('dr_nayak_doctor_banner', result);
-            setCustomBanner(result);
-            setBannerSrc(result);
-          } catch (err) {
-            console.error('Failed to save banner', err);
-            alert(language === 'en'
-              ? 'Could not save the image. Please try another image.'
-              : 'చిత్రం సేవ్ చేయలేకపోయాము. దయచేసి మరొక చిత్రాన్ని ఎంచుకోండి.');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleResetBanner = async () => {
-    await deleteStoredBanner('dr_nayak_doctor_banner');
-    setCustomBanner(null);
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    setBannerSrc(`${cleanBase}banner_doctor.png`);
-  };
-
+  const candidates: string[] = ['/doctor.png'];
+  const [bannerSrc, setBannerSrc] = React.useState<string>('/banner_doctor.png');
   const handleBannerError = () => {
     setBannerSrc('');
-  };
-
-  const candidates = React.useMemo(() => [
-    "/doctor.png",
-    "/doctor.jpg",
-    "/doctor.jpeg",
-    "/doctor.webp"
-  ], []);
-
-  React.useEffect(() => {
-    const savedPhoto = localStorage.getItem('dr_nayak_photo');
-    if (savedPhoto) {
-      setPhotoUrl(savedPhoto);
-    } else {
-      setPhotoUrl(candidates[0]);
-    }
-  }, [candidates]);
-
-
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          localStorage.setItem('dr_nayak_photo', result);
-          setPhotoUrl(result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleResetPhoto = () => {
-    localStorage.removeItem('dr_nayak_photo');
-    setCandidateIndex(0);
-    setPhotoUrl(candidates[0]);
   };
 
   const degreesList = [
@@ -223,39 +135,7 @@ export function DoctorProfile({ language }: DoctorProfileProps) {
               </div>
             </div>
           )}
-
-          {/* Banner Action Controls Bar */}
-          <div className="relative z-10 bg-slate-950/70 py-2.5 border-t border-white/10">
-            <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
-              <div className="flex items-center gap-2 font-semibold">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>{language === 'en' ? 'Doctor Profile Banner Slot' : 'డాక్టర్ ప్రొఫైల్ బ్యానర్ సదుపాయం'}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <label className="bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-black px-3.5 py-1.5 rounded-xl cursor-pointer transition-all duration-150 shadow-sm flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                  <Sparkles size={11} className="text-amber-300 animate-pulse" />
-                  <span>{language === 'en' ? 'Upload Banner Image' : 'బ్యానర్ అప్‌లోడ్'}</span>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleBannerUpload} 
-                    className="hidden" 
-                  />
-                </label>
-
-                {customBanner && (
-                  <button
-                    onClick={handleResetBanner}
-                    className="bg-slate-800 hover:bg-red-950/60 hover:text-red-400 border border-slate-700 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-150 cursor-pointer"
-                  >
-                    {language === 'en' ? 'Reset' : 'రీసెట్'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
         {/* Remaining content container */}
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 space-y-12">
@@ -396,43 +276,10 @@ export function DoctorProfile({ language }: DoctorProfileProps) {
               </div>
             </div>
 
-            {/* Elegant Image customizer under the portrait */}
-            <div className="mt-4 flex flex-col items-center gap-2 w-full max-w-[360px] bg-white border border-slate-200 p-3.5 rounded-2xl shadow-sm">
-              <span className="text-[11px] font-bold text-slate-500 tracking-wider uppercase text-center">
-                {language === 'en' ? 'Personalize Doctor Portrait' : 'డాక్టర్ ఫోటోను అనుకూలీకరించండి'}
-              </span>
-              <div className="flex items-center gap-2 justify-center w-full mt-1.5">
-                <label className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 hover:cursor-pointer text-white text-xs font-bold rounded-xl shadow-sm border border-slate-700 transition-all duration-200">
-                  <Sparkles size={13} className="text-rose-400" />
-                  <span>{language === 'en' ? 'Upload Photo' : 'ఫోటోను అప్‌లోడ్ చేయండి'}</span>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handlePhotoUpload} 
-                    className="hidden" 
-                  />
-                </label>
-                
-                {localStorage.getItem('dr_nayak_photo') && (
-                  <button
-                    onClick={handleResetPhoto}
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-rose-50 active:bg-rose-100 text-slate-700 hover:text-rose-600 text-xs font-bold rounded-xl border border-slate-200 hover:border-rose-200 transition-all duration-200"
-                  >
-                    {language === 'en' ? 'Reset' : 'రీసెట్'}
-                  </button>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-400 mt-1.5 text-center leading-relaxed">
-                {language === 'en' 
-                  ? "Select any portrait image from your device to instantly display it of Doctor N.S. Nayak!" 
-                  : "డాక్టర్ ఎన్.ఎస్. నాయక్ అసలు ఫోటోను ఇక్కడ చూపించడానికి మీ ఫోన్/కంప్యూటర్ నుండి అప్‌లోడ్ చేయండి!"}
-              </p>
-            </div>
-
             {/* Emergency Mobile Shortcut */}
             <a 
               href="tel:9618888743" 
-              className="mt-4 flex items-center justify-center gap-2 w-full max-w-[360px] bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-bold py-3 px-6 rounded-2xl shadow-md transition-all duration-200"
+              className="mt-6 flex items-center justify-center gap-2 w-full max-w-[360px] bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-bold py-3 px-6 rounded-2xl shadow-md transition-all duration-200"
             >
               <span className="text-sm font-mono tracking-wider">📞 Call Direct: 9618888743</span>
             </a>

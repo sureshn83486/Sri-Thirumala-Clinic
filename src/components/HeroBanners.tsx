@@ -15,12 +15,11 @@ import {
   Award, 
   ChevronLeft, 
   ChevronRight, 
-  CheckCircle2, 
+  CheckCircle2,
   Sparkles
 } from 'lucide-react';
 import { Language } from '../types';
 import { Logo } from './Logo';
-import { getStoredBanner, setStoredBanner, deleteStoredBanner } from '../utils/db';
 
 interface HeroBannersProps {
   language: Language;
@@ -32,106 +31,12 @@ export function HeroBanners({ language, onSelectBook, onNavigate }: HeroBannersP
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   
-  const [bgImages, setBgImages] = useState<{ [key: number]: string }>({});
-
-  useEffect(() => {
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    
-    async function loadAllBanners() {
-      const emergencyBg = await getStoredBanner('dr_nayak_clinic_banner') || await getStoredBanner('dr_nayak_doctor_banner');
-      const doctorBg = await getStoredBanner('dr_nayak_doctor_banner');
-      const freecampBg = await getStoredBanner('dr_nayak_treatments_banner');
-      const diagnosticsBg = await getStoredBanner('dr_nayak_facilities_banner');
-
-      setBgImages({
-        0: emergencyBg || `${cleanBase}banner_doctor.png`,
-        1: doctorBg || `${cleanBase}banner_treatments.png`,
-        2: freecampBg || `${cleanBase}banner_facilities.png`,
-        3: diagnosticsBg || `${cleanBase}banner_facilities.png`
-      });
-    }
-    loadAllBanners();
-  }, []);
-
-  const handleSlideImageError = (index: number) => {
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-    
-    setBgImages((prev) => {
-      const current = prev[index] || '';
-      let fallback = '';
-      
-      if (current.includes('banner_doctor.png')) {
-        fallback = `${cleanBase}banner_doctor.jpg`;
-      } else if (current.includes('banner_doctor.jpg')) {
-        fallback = `${cleanBase}clinic.png`;
-      } else if (current.includes('banner_treatments.png')) {
-        fallback = `${cleanBase}banner_treatments.jpg`;
-      } else if (current.includes('banner_treatments.jpg')) {
-        fallback = "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80";
-      } else if (current.includes('banner_facilities.png')) {
-        fallback = `${cleanBase}banner_facilities.jpg`;
-      } else if (current.includes('banner_facilities.jpg')) {
-        fallback = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80";
-      } else {
-        fallback = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80";
-      }
-      
-      return { ...prev, [index]: fallback };
-    });
-  };
-
-  const handleBgUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const result = e.target?.result as string;
-        if (result) {
-          let key = 'dr_nayak_clinic_banner';
-          if (currentSlide === 1) key = 'dr_nayak_doctor_banner';
-          else if (currentSlide === 2) key = 'dr_nayak_treatments_banner';
-          else if (currentSlide === 3) key = 'dr_nayak_facilities_banner';
-          
-          try {
-            await setStoredBanner(key, result);
-            setBgImages((prev) => ({ ...prev, [currentSlide]: result }));
-          } catch (err) {
-            console.error('Failed to save slide banner image', err);
-            alert(language === 'en'
-              ? 'Could not save the image. Please try a smaller image.'
-              : 'చిత్రం సేవ్ చేయలేకపోయాము. దయచేసి చిన్న చిత్రాన్ని ఎంచుకోండి.');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleResetBg = async () => {
-    let key = 'dr_nayak_clinic_banner';
-    let defaultImg = '';
-    const base = (import.meta as any).env?.BASE_URL || '/';
-    const cleanBase = base.endsWith('/') ? base : `${base}/`;
-
-    if (currentSlide === 0) {
-      key = 'dr_nayak_clinic_banner';
-      defaultImg = `${cleanBase}banner_doctor.png`;
-    } else if (currentSlide === 1) {
-      key = 'dr_nayak_doctor_banner';
-      defaultImg = `${cleanBase}banner_treatments.png`;
-    } else if (currentSlide === 2) {
-      key = 'dr_nayak_treatments_banner';
-      defaultImg = `${cleanBase}banner_facilities.png`;
-    } else if (currentSlide === 3) {
-      key = 'dr_nayak_facilities_banner';
-      defaultImg = `${cleanBase}banner_facilities.png`;
-    }
-
-    await deleteStoredBanner(key);
-    setBgImages((prev) => ({ ...prev, [currentSlide]: defaultImg }));
-  };
+  const [bgImages, setBgImages] = useState<{ [key: number]: string }>({
+    0: '/banner_facilities.png',
+    1: '/banner_doctor.png',
+    2: '/banner_treatments.png',
+    3: '/banner_facilities.png'
+  });
 
   const mapDirectionsURL = "https://www.google.com/maps/search/?api=1&query=DVS+Complex+Kurichedu+Road+Darsi+Anjaneyaswamy+Temple";
 
@@ -284,8 +189,12 @@ export function HeroBanners({ language, onSelectBook, onNavigate }: HeroBannersP
             <img 
               src={bgImages[currentSlide]} 
               alt={banners[currentSlide].titleEn} 
-              onError={() => handleSlideImageError(currentSlide)}
-              referrerPolicy="no-referrer"
+              onError={() => {
+                setBgImages(prev => ({
+                  ...prev,
+                  [currentSlide]: ''
+                }));
+              }}
               className="absolute inset-0 w-full h-full object-cover select-none brightness-[0.34] transition-all duration-1000 scale-102"
             />
             {/* Glossy Overlay for sheen and lighting depth */}
@@ -419,44 +328,6 @@ export function HeroBanners({ language, onSelectBook, onNavigate }: HeroBannersP
                     <span>{language === 'en' ? currentData.secondaryBtnTextEn : currentData.secondaryBtnTextTe}</span>
                   </a>
                 )}
-
-                {/* Upload Customizer Button - Available on All Banners */}
-                <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
-                  <label className="flex-grow sm:flex-initial bg-rose-500/25 hover:bg-rose-500/35 active:bg-rose-500/45 text-slate-200 hover:text-white border border-rose-500/30 hover:border-rose-500/50 font-extrabold text-xs px-4 py-3 rounded-2xl shadow-md transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer animate-fade-in">
-                    <Sparkles size={13} className="text-amber-300 animate-pulse" />
-                    <span>
-                      {language === 'en' 
-                        ? [
-                            'Use Your Clinic Photo',
-                            'Use Your Doctor Photo',
-                            'Use Your Treatment Photo',
-                            'Use Your Facilities Photo'
-                          ][currentSlide] || 'Upload Photo'
-                        : [
-                            'మీ క్లినిక్ ఫోటో పెట్టండి',
-                            'మీ డాక్టర్ ఫోటో పెట్టండి',
-                            'మీ చికిత్స ఫోటో పెట్టండి',
-                            'మీ సదుపాయాల ఫోటో పెట్టండి'
-                          ][currentSlide] || 'అప్‌లోడ్ ఫోటో'
-                      }
-                    </span>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleBgUpload} 
-                      className="hidden" 
-                    />
-                  </label>
-                  {bgImages[currentSlide]?.startsWith('data:image') && (
-                    <button
-                      onClick={handleResetBg}
-                      className="px-3.5 py-3 bg-slate-950/60 hover:bg-red-950/70 text-slate-300 hover:text-red-400 text-xs font-black rounded-2xl border border-white/10 transition-all duration-150 cursor-pointer"
-                      title={language === 'en' ? 'Reset Background' : 'రీసెట్ బ్యాక్‌గ్రౌండ్'}
-                    >
-                      {language === 'en' ? 'Reset' : 'రీసెట్'}
-                    </button>
-                  )}
-                </div>
               </div>
 
               {/* Urgent Emergency Quick Disclaimer banner (Sticky below buttons inside left) */}
