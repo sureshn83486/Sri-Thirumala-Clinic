@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Language, AppointmentInquiry } from '../types';
 import { TRANSLATIONS } from '../data/translations';
-import { Calendar, Phone, Clock, FileText, Check, Trash2, Send, Share2, ClipboardList, ShieldAlert } from 'lucide-react';
+import { Calendar, Phone, Clock, FileText, Check, Trash2, Send, Share2, ClipboardList, ShieldAlert, MapPin, Navigation } from 'lucide-react';
 
 interface AppointmentsProps {
   language: Language;
@@ -398,7 +398,7 @@ ${separator}
                 </div>
 
                 {/* Sub Action Buttons (Send on Whatsapp, etc.) */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <a
                     href={getWhatsAppURL(generatedTicket)}
                     target="_blank"
@@ -408,20 +408,87 @@ ${separator}
                     <Send size={15} />
                     <span>{t.whatsappSlip}</span>
                   </a>
+
+                  {/* Google Maps Embed & Link */}
+                  <div className="pt-4 border-t border-slate-100 space-y-3">
+                    <div className="flex items-center gap-1.5 text-slate-800 font-extrabold text-xs uppercase font-mono">
+                      <MapPin className="text-rose-600 animate-pulse" size={14} />
+                      <span>{language === 'en' ? 'Clinic Location Map' : 'క్లినిక్ లొకేషన్ మ్యాప్'}</span>
+                    </div>
+                    
+                    <div className="w-full h-32 rounded-xl overflow-hidden border border-slate-200 relative shadow-inner">
+                      <iframe
+                        title="Sri Thirumala Clinic Map"
+                        src="https://maps.google.com/maps?q=Sri%20Thirumala%20Clinic%2C%20Darsi%2C%20Andhra%20Pradesh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={false}
+                        loading="lazy"
+                      ></iframe>
+                    </div>
+
+                    <a
+                      href="https://maps.app.goo.gl/jooPZd5BpvVnTHcr6"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full bg-slate-900 hover:bg-slate-950 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 shadow-md cursor-pointer border border-slate-800"
+                    >
+                      <Navigation size={13} className="text-rose-400" />
+                      <span>{language === 'en' ? 'Get Directions on Google Maps' : 'గూగుల్ మ్యాప్స్ లో రూట్ చూడండి'}</span>
+                    </a>
+                  </div>
                 </div>
 
               </div>
             ) : (
               /* If no active ticket is generated, show informational reminder block */
-              <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-3xl text-center space-y-4">
-                <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto text-slate-400">
-                  <FileText size={28} />
+              <div className="space-y-6">
+                <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-3xl text-center space-y-4">
+                  <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                    <FileText size={28} />
+                  </div>
+                  <div>
+                    <h4 className="text-md font-bold text-slate-200">OPD Ticket Generator is Idle</h4>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-xs mx-auto">
+                      Fill the appointment form on the left with the patient details to generate your official registration token.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-md font-bold text-slate-200">OPD Ticket Generator is Idle</h4>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-xs mx-auto">
-                    Fill the appointment form on the left with the patient details to generate your official registration token.
-                  </p>
+
+                {/* Always-on Clinic Location & Map in Idle State */}
+                <div className="bg-slate-800/60 border border-slate-700/50 p-6 rounded-3xl space-y-4">
+                  <div className="flex items-center gap-2 text-rose-500 font-extrabold text-xs uppercase font-mono tracking-wider">
+                    <MapPin size={16} className="animate-pulse" />
+                    <span>{language === 'en' ? 'Clinic Location & Directions' : 'క్లినిక్ లొకేషన్ & మార్గం'}</span>
+                  </div>
+                  
+                  <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-700 relative">
+                    <iframe
+                      title="Sri Thirumala Clinic Map Idle"
+                      src="https://maps.google.com/maps?q=Sri%20Thirumala%20Clinic%2C%20Darsi%2C%20Andhra%20Pradesh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={false}
+                      loading="lazy"
+                    ></iframe>
+                  </div>
+
+                  <div className="text-xs text-slate-300 font-medium space-y-1">
+                    <p className="font-extrabold text-white font-serif">Sri Thirumala Clinic</p>
+                    <p className="text-[11px] text-slate-400">D.V.S. Complex, near Anjaneyaswamy Temple, Kurichedu Road, Darsi.</p>
+                  </div>
+
+                  <a
+                    href="https://maps.app.goo.gl/jooPZd5BpvVnTHcr6"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full bg-slate-900 hover:bg-slate-950 text-white font-extrabold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 shadow-md border border-slate-700 cursor-pointer"
+                  >
+                    <Navigation size={13} className="text-rose-400" />
+                    <span>{language === 'en' ? 'Open in Google Maps' : 'గూగుల్ మ్యాప్స్ లో ఓపెన్ చేయండి'}</span>
+                  </a>
                 </div>
               </div>
             )}

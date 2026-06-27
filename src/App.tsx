@@ -27,7 +27,8 @@ import {
   HelpCircle,
   Thermometer,
   Shield,
-  BriefcaseMedical
+  BriefcaseMedical,
+  Navigation
 } from 'lucide-react';
 
 
@@ -49,7 +50,7 @@ export default function App() {
   const t = TRANSLATIONS[language];
 
   // Map selector link (Curichedu road, Darsi near Anjaneyaswamy temple)
-  const mapDirectionsURL = "https://www.google.com/maps/search/?api=1&query=DVS+Complex+Kurichedu+Road+Darsi+Anjaneyaswamy+Temple";
+  const mapDirectionsURL = "https://maps.app.goo.gl/jooPZd5BpvVnTHcr6";
 
   const handleSelectService = (nameEn: string, nameTe: string) => {
     setSelectedServiceEn(nameEn);
@@ -668,29 +669,51 @@ export default function App() {
                   </div>
 
                   {/* Location Address Detail Banner mapping details */}
-                  <div className="mt-12 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-6 justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-indigo-50 text-[#1e3a8a] rounded-2xl border border-indigo-100 shadow-inner">
-                        <MapPin size={22} />
+                  <div className="mt-12 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-inner">
+                          <MapPin size={22} />
+                        </div>
+                        <div>
+                          <h4 className="text-md font-extrabold text-slate-800 font-serif">
+                            {language === 'en' ? 'Clinic Physical Address' : 'క్లినిక్ చిరునామా'}
+                          </h4>
+                          <p className="text-xs text-slate-500 mt-0.5 max-w-sm font-semibold leading-relaxed">
+                            {t.addressText}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-md font-extrabold text-slate-800 font-serif">
-                          {language === 'en' ? 'Clinic Physical Address' : 'క్లినిక్ చిరునామా'}
-                        </h4>
-                        <p className="text-xs text-slate-500 mt-0.5 max-w-sm font-semibold leading-relaxed">
-                          {t.addressText}
-                        </p>
+                      
+                      <a 
+                        href={mapDirectionsURL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full md:w-auto text-xs font-extrabold text-white bg-slate-900 hover:bg-slate-950 px-5 py-3.5 rounded-xl transition-all duration-150 border border-slate-950 shadow-sm text-center cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Navigation size={13} className="text-rose-400" />
+                        <span>{language === 'en' ? 'Open Google Maps' : 'మ్యాప్‌ చిరునామా చూడండి'}</span>
+                      </a>
+                    </div>
+
+                    {/* Interactive Embedded Map */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-1.5 text-slate-800 font-extrabold text-xs uppercase font-mono">
+                        <MapPin className="text-rose-600 animate-pulse" size={14} />
+                        <span>{language === 'en' ? 'Live Interactive Route' : 'లైవ్ ఇంటరాక్టివ్ రూట్ మ్యాప్'}</span>
+                      </div>
+                      <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden border border-slate-200 shadow-inner relative">
+                        <iframe
+                          title="Sri Thirumala Clinic Map Timings"
+                          src="https://maps.google.com/maps?q=Sri%20Thirumala%20Clinic%2C%20Darsi%2C%20Andhra%20Pradesh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen={false}
+                          loading="lazy"
+                        ></iframe>
                       </div>
                     </div>
-                    
-                    <a 
-                      href={mapDirectionsURL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full md:w-auto text-xs font-extrabold text-white bg-slate-900 hover:bg-slate-950 px-5 py-3 rounded-xl transition-all duration-150 border border-slate-950 shadow-sm text-center cursor-pointer"
-                    >
-                      {language === 'en' ? 'Open Google Maps 🗺️' : 'మ్యాప్‌ చిరునామా చూడండి 🗺️'}
-                    </a>
                   </div>
 
                 </div>
@@ -781,6 +804,38 @@ export default function App() {
           <p>{t.rightsText}</p>
         </div>
       </footer>
+
+      {/* WhatsApp Floating Icon */}
+      <motion.a
+        id="whatsapp-floating-button"
+        href="https://wa.me/919618888743"
+        target="_blank"
+        rel="noreferrer"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20ba5a] text-white p-4 rounded-full shadow-2xl hover:shadow-emerald-500/50 flex items-center justify-center transition-shadow group cursor-pointer"
+        aria-label="Contact on WhatsApp"
+      >
+        <svg 
+          id="whatsapp-icon-svg"
+          className="w-6 h-6 fill-current" 
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.731-1.456L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.97C16.538 1.966 14.071 1.9 12.003 1.9c-5.439 0-9.863 4.372-9.867 9.802-.001 1.77.487 3.5 1.414 5.016l-.994 3.633 3.733-.969c.001 0 .001 0 0 0zm11.367-7.46c-.301-.15-1.781-.879-2.056-.979-.275-.1-.475-.15-.675.15-.199.299-.775.979-.95 1.178-.175.199-.35.224-.651.075-1.204-.582-2.128-1.021-2.937-2.42-.213-.369.213-.343.61-.1.356.124.6.425.6.425s.175.299.075.498c-.1.2-.475.95-.575 1.178-.1.225-.2.15-.3.075-.403-.201-1.704-.627-3.245-1.998-1.199-1.068-2.009-2.387-2.244-2.786-.235-.4-.025-.616.175-.815.18-.18.4-.475.6-.712.199-.237.266-.4.4-.666.133-.267.066-.5-.034-.7-.1-.2-.675-1.624-.925-2.223-.244-.589-.493-.51-.675-.519-.174-.009-.373-.01-.573-.01-.2 0-.525.075-.8.374-.275.299-1.05 1.024-1.05 2.5s1.075 2.9 1.225 3.1c.15.199 2.113 3.227 5.12 4.524.714.309 1.272.493 1.707.63.717.228 1.368.196 1.883.119.574-.085 1.781-.728 2.03-1.429.25-.7.25-1.3.175-1.429-.075-.125-.275-.199-.575-.349z"/>
+        </svg>
+        
+        {/* Hover tooltip */}
+        <span 
+          id="whatsapp-tooltip-text"
+          className="absolute right-16 bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none border border-slate-800"
+        >
+          {language === 'en' ? 'Chat with us' : 'మాతో చాట్ చేయండి'}
+        </span>
+      </motion.a>
 
     </div>
   );
