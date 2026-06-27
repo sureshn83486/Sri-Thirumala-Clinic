@@ -1,0 +1,6 @@
+{
+  "name": "Sri Thirumala Clinic & Night-Hospital",
+  "description": "Official website for Sri Thirumala Clinic & Night-Hospital in Darsi, under Consultant Doctor Dr. N.S. Nayak. Offers 24/7 emergency services, general consultation, diagnostics, and family medicine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
